@@ -12,6 +12,7 @@ import enemy from '../assets/enemy.png'
 
 let score = 0
 let scoreText
+
 // TODO -> Detectar quan l'usuari surt del mon -> executar un die
 
 function die (player, enemy) {
@@ -20,21 +21,29 @@ function die (player, enemy) {
 
   // TODO -> EXECUTAR SO
 
-  player.scene.camera.main.shake(500)
-
   // TODO REINICIAR NIVELL
+  // console.log(game)
+  // console.log(game.camera)
+  // console.log(player.scene)
+  // console.log(player.scene.game)
+  player.scene.cameras.main.shake(500)
 
   // TODO: Display amb el número de vidas -> Mostrar el número de vidas i si l'has hem gastat aturar el joc
 
   // TODO: Simular la explosió
 }
 
+// SHAKE EFFECT
+// http://labs.phaser.io/edit.html?src=src/camera/shake.js
+
 function takeCoin (player, coin) {
   // TODO -> MILLORAR AMB UNA ANIMACIÓ
   coin.disableBody(true, true)
+  console.log('XIVATO')
 
   score = score + 10
 
+  // this.add.text(10, 10, 'score: ' + score, { fontSize: '12px', fill: '#000' })
   scoreText.setText('Score: ' + score)
   // TODO -> EXECUTAR SO QUE PERTOCA (coin.mp3)
 
@@ -73,7 +82,8 @@ export default {
           // this.load.audio('dust', ['assets/dead.wav', 'assets/dead.mp3'])
         },
         create () {
-          // INITILIZE del nivell -> Afegirem tiles (level: pareds, terras), afegirem player/s, collectibles (coins) , enemie
+          // INITILIZE del nivell -> Afegirem tiles (level: pareds, terras), afegirem player/s, collectibles (coins) , enemies
+          console.log('CREATED')
 
           this.cameras.main.backgroundColor.setTo(52, 152, 219)
 
@@ -132,7 +142,16 @@ export default {
           this.physics.add.collider(this.enemies, this.level)
           this.physics.add.overlap(this.player, this.enemies, die, null, this)
 
-          this.add.text(10, 10, 'LOSER', { fontSize: '30px', fill: '#000' }).setVisible(false)
+          // PREPARE LOSER TEXT
+          this.loserText = this.add.text(500 / 2 - 50, 200 / 2 - 50, 'LOOSER!', { fontSize: '30px', fill: '#000' }).setVisible(false)
+
+          this.cameras.main.on('camerashakestart', () => {
+            this.loserText.setVisible(true)
+          })
+
+          this.cameras.main.on('camerashakecomplete', () => {
+            this.loserText.setVisible(false)
+          })
         },
         update () {
           this.player.anims.play('idle', true)
@@ -161,12 +180,13 @@ export default {
           // ESTE EL QUE S'executa continuament al Game loop -> 60 vegades per segon o FPS
 
           // if (this.player.body.touching.down && this.player.y > 10) {
-          //   this.dustSound.play()src/views/Game.vue:135
+          //   this.dustSound.play()
           // }
         }
       }
     }
-    new Phaser.Game(config)
+    // eslint-disable-next-line
+      new Phaser.Game(config)
   }
 }
 </script>
