@@ -1,5 +1,8 @@
+
 <template>
-    <div id="game"></div>
+    <div id="game">
+        <h1>This is an game page</h1>
+    </div>
 </template>
 
 <script>
@@ -9,52 +12,28 @@ import ground from '../assets/ground.png'
 import player from '../assets/player.png'
 import coin from '../assets/coin.png'
 import enemy from '../assets/enemy.png'
-
+import soundDead from '../assets/dead.mp3'
+import soundCoin from '../assets/coin.mp3'
 let score = 0
 let scoreText
-
-// TODO -> Detectar quan l'usuari surt del mon -> executar un die
-
-function die (player, enemy) {
-  // TODO -> MILLORAR AMB UNA ANIMACIÓ
-  player.disableBody(true, true)
-
-  // TODO -> EXECUTAR SO
-
-  // TODO REINICIAR NIVELL
-  // console.log(game)
-  // console.log(game.camera)
-  // console.log(player.scene)
-  // console.log(player.scene.game)
-  player.scene.cameras.main.shake(500)
-
-  // TODO: Display amb el número de vidas -> Mostrar el número de vidas i si l'has hem gastat aturar el joc
-
-  // TODO: Simular la explosió
-}
-
-// SHAKE EFFECT
-// http://labs.phaser.io/edit.html?src=src/camera/shake.js
-
 function takeCoin (player, coin) {
-  // TODO -> MILLORAR AMB UNA ANIMACIÓ
+  // todo -> millorar amb una animacio i executar so al agafar la moneda
   coin.disableBody(true, true)
-  console.log('XIVATO')
-
   score = score + 10
-
-  // this.add.text(10, 10, 'score: ' + score, { fontSize: '12px', fill: '#000' })
   scoreText.setText('Score: ' + score)
-  // TODO -> EXECUTAR SO QUE PERTOCA (coin.mp3)
-
-  // TODO -> ACTUALITZAR COMPTADOR/SCORE DE PUNTS
+  console.log('takecoin')
+  this.sound.play('soundCoin')
 }
-
+function die (player, enemy) {
+  // todo reiniciar nivell
+  player.disableBody(true, true)
+  player.scene.cameras.main.shake(500)
+  this.sound.play('soundDead')
+}
 export default {
   name: 'Game',
-  mounted () {
-    // PHASER 2.6 -> phaser-ce
-    // PHASER 3.0 -> phaser
+  created () {
+    // Phaser 3.0 -> phaser
     let config = {
       type: Phaser.AUTO,
       width: 500,
@@ -65,98 +44,74 @@ export default {
           gravity: { y: 200 }
         }
       },
-      // NO HI HA STATES A 3.0 -> SCENES
       scene: {
         preload () {
-          console.log('PRELOAD')
-          // CARREGAR ASSETS -> IMAGES, PLAYERS (SPRITESHEETS), AUDIOS, VIDEOS
+          // carregar assets -> imatges audios videos //
+          console.log('preload')
           this.load.image('wall', wall)
           this.load.image('ground', ground)
-          this.load.spritesheet('player', player, { frameWidth: 28, frameHeight: 22 })
-
           this.load.image('coin', coin)
           this.load.image('enemy', enemy)
-
+          this.load.spritesheet('player', player, { frameWidth: 28, frameHeight: 22 })
+          this.load.audio('soundDead', soundDead)
+          this.load.audio('soundCoin', soundCoin)
           // AUDIO
           // this.load.setBaseURL('http://labs.phaser.io')
           // this.load.audio('dust', ['assets/dead.wav', 'assets/dead.mp3'])
         },
         create () {
-          // INITILIZE del nivell -> Afegirem tiles (level: pareds, terras), afegirem player/s, collectibles (coins) , enemies
-          console.log('CREATED')
-
+          // initialize del nivell -> afegirem tiles  (level: pareds, terres, players, monedes, enemics)
+          console.log('create')
+          // Afegim el so
+          this.sound.add('soundDead')
+          this.sound.add('soundCoin')
           this.cameras.main.backgroundColor.setTo(52, 152, 219)
-
-          // GROUP PER DEFECTE ES DINAMIC
-          // this.level = this.physics.add.group()
           this.level = this.physics.add.staticGroup()
-
           // this.add.image(500 / 2 - 160, 200 / 2, 'wall')
           // this.add.image(500 / 2 + 160, 200 / 2, 'wall')
-          // this.ground = this.physics.add.image(500 / 2, 200 / 2 + 30, 'ground')
-
+          // this.add.image(500 / 2, 200 / 2 + 30, 'ground')
           this.level.create(500 / 2 - 160, 200 / 2, 'wall')
           this.level.create(500 / 2 + 160, 200 / 2, 'wall')
           this.level.create(500 / 2, 200 / 2 + 30, 'ground')
-
-          // this.ground.body.allowGravity = false
-          // PLAYER -> FÍSIQUES
+          // PLAYER
           this.player = this.physics.add.sprite(500 / 2, 200 / 2 - 50, 'player')
-          this.player.setBounce(0.2)
           // this.player.setCollideWorldBounds(true)
-
+          this.player.setBounce(0.2)
           this.physics.add.collider(this.player, this.level)
-
           // DEFINE SOUNDS
           // this.dustSound = this.add.audio('dust', 0.1)
-
-          // cursors
           this.cursors = this.input.keyboard.createCursorKeys()
-
-          // ANIMATE PLAYER
           this.anims.create({
             key: 'idle',
             frames: this.anims.generateFrameNumbers('player', { start: 3, end: 5 }),
             frameRate: 5,
             repeat: -1
           })
-
-          // ADD COINS
           this.coins = this.physics.add.group()
-
           this.coins.create(140, 200 / 2, 'coin')
-          this.coins.create(170, 200 / 2, 'coin')
-          this.coins.create(200, 200 / 2, 'coin')
-
+          this.coins.create(165, 200 / 2, 'coin')
+          this.coins.create(190, 200 / 2, 'coin')
           this.physics.add.collider(this.coins, this.level)
-          this.physics.add.overlap(this.player, this.coins, takeCoin, null, this)
-
-          // SCORE
-          scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '12px', fill: '#000' })
-
+          this.physics.add.overlap(this.coins, this.player, takeCoin, null, this)
           // ENEMIES
-
           this.enemies = this.physics.add.group()
           this.enemies.create(500 / 2 + 130, 200 / 2, 'enemy')
-
           this.physics.add.collider(this.enemies, this.level)
           this.physics.add.overlap(this.player, this.enemies, die, null, this)
-
-          // PREPARE LOSER TEXT
-          this.loserText = this.add.text(500 / 2 - 50, 200 / 2 - 50, 'LOOSER!', { fontSize: '30px', fill: '#000' }).setVisible(false)
-
+          // SCORE
+          scoreText = this.add.text(20, 20, 'Score: 0', { fontSize: '18px', fill: '#000' })
+          // LOOSER TEXT
+          this.loserText = this.add.text(500 / 2 - 50, 200 / 2 - 50, 'YOU DIED', { fontSize: '30px', fill: '#830' }).setVisible(false)
           this.cameras.main.on('camerashakestart', () => {
             this.loserText.setVisible(true)
           })
-
           this.cameras.main.on('camerashakecomplete', () => {
             this.loserText.setVisible(false)
           })
         },
         update () {
+          // sexecuta continuament al game loop -> 60 vegades per segon
           this.player.anims.play('idle', true)
-
-          // INPUT EVENTS
           if (this.cursors.left.isDown) {
             this.player.setVelocityX(-160)
             this.player.setFrame(2)
@@ -166,20 +121,10 @@ export default {
           } else {
             this.player.setVelocityX(0)
           }
-
-          // JUMP
           if (this.cursors.up.isDown && this.player.body.touching.down) {
             this.player.setVelocityY(-160)
           }
-          // MULTIPLE JUMP (JUMP ON THE AIR)
-          // if (this.cursors.up.isDown) {
-          //   this.player.setVelocityY(-160)
-          // }
-
-          // console.log('UPDATED')
-          // ESTE EL QUE S'executa continuament al Game loop -> 60 vegades per segon o FPS
-
-          // if (this.player.body.touching.down && this.player.y > 10) {
+          // if (this.player.body.touching.down && this.player.y > 30) {
           //   this.dustSound.play()
           // }
         }
