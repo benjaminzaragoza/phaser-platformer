@@ -33,7 +33,6 @@ function die (player, enemy) {
 export default {
   name: 'Game',
   created () {
-    // Phaser 3.0 -> phaser
     let config = {
       type: Phaser.AUTO,
       width: 500,
@@ -89,8 +88,8 @@ export default {
           })
           this.coins = this.physics.add.group()
           this.coins.create(140, 200 / 2, 'coin')
-          this.coins.create(165, 200 / 2, 'coin')
-          this.coins.create(190, 200 / 2, 'coin')
+          this.coins.create(170, 200 / 2, 'coin')
+          this.coins.create(200, 200 / 2, 'coin')
           this.physics.add.collider(this.coins, this.level)
           this.physics.add.overlap(this.coins, this.player, takeCoin, null, this)
           // ENEMIES
