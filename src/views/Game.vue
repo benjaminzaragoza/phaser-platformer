@@ -21,11 +21,9 @@ function takeCoin (player, coin) {
   coin.disableBody(true, true)
   score = score + 10
   scoreText.setText('Score: ' + score)
-  console.log('takecoin')
   this.sound.play('soundCoin')
 }
 function die (player, enemy) {
-  // todo reiniciar nivell
   player.disableBody(true, true)
   player.scene.cameras.main.shake(500)
   this.sound.play('soundDead')
@@ -45,8 +43,6 @@ export default {
       },
       scene: {
         preload () {
-          // carregar assets -> imatges audios videos //
-          console.log('preload')
           this.load.image('wall', wall)
           this.load.image('ground', ground)
           this.load.image('coin', coin)
@@ -59,9 +55,6 @@ export default {
           // this.load.audio('dust', ['assets/dead.wav', 'assets/dead.mp3'])
         },
         create () {
-          // initialize del nivell -> afegirem tiles  (level: pareds, terres, players, monedes, enemics)
-          console.log('create')
-          // Afegim el so
           this.sound.add('soundDead')
           this.sound.add('soundCoin')
           this.cameras.main.backgroundColor.setTo(52, 152, 219)
